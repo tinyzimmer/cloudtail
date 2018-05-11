@@ -16,6 +16,14 @@ Head to the [releases](https://github.com/tinyzimmer/cloudtail/releases) section
 $> cloudtail [OPTIONS] logGroup # accepts substring
 ```
 
+## AWS Credentials
+
+See the AWS documentation for configuring an SDK client. The order in which `cloudtail` checks credentials is:
+
+ - Environment Credentials
+ - IAM Instance Profile
+ - Shared Credentials File (~/.aws/credentials)
+
 ## Build
 
 ```bash

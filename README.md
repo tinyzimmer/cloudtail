@@ -16,6 +16,15 @@ Head to the [releases](https://github.com/tinyzimmer/cloudtail/releases) section
 $> cloudtail [OPTIONS] logGroup # accepts substring
 ```
 
+## Docker
+
+For whatever reason, there is a docker image you can use also.
+
+```bash
+$> alias ctail='docker run --rm tinyzimmer/cloudtail:latest'
+$> ctail --help
+```
+
 ## AWS Credentials
 
 See the AWS documentation for configuring an SDK client. The order in which `cloudtail` checks credentials is:

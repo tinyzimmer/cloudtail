@@ -6,7 +6,7 @@ before_install:
 install:
   - go get github.com/mitchellh/gox
 script:
-  - gox -os="linux darwin windows" -arch="amd64 386" -output="./build/{{.OS}}/{{.Arch}}/{{.Dir}}"
+  - gox -os="linux darwin windows" -arch="amd64" -output="./build/{{.Dir}}-{{.OS}}-{{.Arch}}"
 deploy:
   provider: releases
   file_glob: true

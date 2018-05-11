@@ -22,7 +22,7 @@ $> cloudtail [OPTIONS] logGroup # accepts substring
 $> go get -u github.com/tinyzimmer/cloudtail
 ```
 
-## TODO (stolen from real tail)
+#### TODO (stolen from real tail)
 ```bash
 -r                   keep trying to open a group even if it is
                      non-existant or permissions denied at first

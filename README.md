@@ -6,7 +6,7 @@ Tail Implementation for CloudWatch Logs
   -f    Follow the log group
   -n int
         Number of lines to dump (default 10)
-  -t int
+  -s int
 
         Interval (in seconds) to poll during a follow (default 3)
 $> cloudtail [OPTIONS] logGroup # accepts substring

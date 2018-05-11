@@ -2,7 +2,6 @@
 Tail Implementation for CloudWatch Logs
 
 ```
-$> coudtail [OPTIONS] logGroup # accepts substring
 # OPTIONS
 #  -f    Follow the log group
 #  -n int
@@ -10,4 +9,5 @@ $> coudtail [OPTIONS] logGroup # accepts substring
 #  -t int
 #
 #        Interval (in seconds) to poll during a follow (default 3)
+$> coudtail [OPTIONS] logGroup # accepts substring
 ```

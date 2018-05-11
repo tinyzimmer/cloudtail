@@ -1,12 +1,12 @@
 language: go
 go:
-- 1.10.x
+  - 1.10.x
 before_install:
-- go get -t ./...
+  - go get -t ./...
 install:
-- go get github.com/mitchellh/gox
+  - go get github.com/mitchellh/gox
 script:
-- gox -os="linux darwin windows" -arch="amd64 386" -output="./build/{{.Dir}}_{{.OS}}_{{.Arch}}"
+  - gox -os="linux darwin windows" -arch="amd64 386" -output="./build/{{.OS}}/{{.Arch}}/{{.Dir}}"
 deploy:
   provider: releases
   file_glob: true

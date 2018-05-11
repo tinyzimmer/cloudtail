@@ -1,6 +1,10 @@
 # cloudtail
 Tail Implementation for CloudWatch Logs
 
+[![Build Status](https://travis-ci.com/tinyzimmer/cloudtail.svg?branch=master)](https://travis-ci.com/tinyzimmer/cloudtail)
+
+Head to the [releases](https://github.com/tinyzimmer/cloudtail/releases) section for pre-compiled binaries
+
 ```bash
  OPTIONS
   -f    Follow the log group

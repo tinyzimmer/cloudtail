@@ -14,4 +14,4 @@ deploy:
   api_key: "${GITHUB_TOKEN}"
   file: "./build/*"
   on:
-    branch: master
+    tags: true

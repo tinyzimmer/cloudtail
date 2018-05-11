@@ -1,23 +1,18 @@
 language: go
-
 go:
-  - "1.10.x"
-
+- 1.10.x
 before_install:
-  - go get -t ./...
-
+- go get -t ./...
 install:
-  - go get github.com/mitchellh/gox
-
+- go get github.com/mitchellh/gox
 script:
-  - gox -os="linux darwin windows" -arch="amd64 386" -output="{{.Dir}}_{{.OS}}_{{.Arch}}"
-
+- gox -os="linux darwin windows" -arch="amd64 386" -output="{{.Dir}}_{{.OS}}_{{.Arch}}"
 deploy:
   provider: releases
-  skip_cleanup: true
-  api_key: $GITHUB_TOKEN
-  file_glob: true
-  file: '$TRAVIS_BUILD_DIR/*'
   overwrite: true
+  file_glob: true
+  api_key:
+    secure: JWlR3ft9P3bqmdxrc/kp1CQ5luYAOQ4E3j2oklRXTt2PUFvAAV66QDonU2fZP4vrmoSKhR8q8uhg9rAYiBByDsuJQyLi5DzXb5XQDfkiOAwHKYLECFCVqG8VNCAhtCzi+PNyjMosv0mX/S6w0o4q3gBE+eRjya/9cwVuofgxvBgg5zCMoyii/91kP9dmttjV6i9lfu+CjeUa8JqfARk2AynMMUs/WjACSIaON3DMKCEm2hAncqb6Y+/DJvtKEVxSQ28QxmRMSzqgkEtQ8tWE/q9rtNmEb+rr8Zg2JBkQ88ffXlP39pz2ploBQ42GdSL+Z7obRWPfOHQXXc2kTcBnimjtS216bFGZ3vCVZHFBD4R7kLrnWnVhYOxFRHMs4wwDqrLQE20irsEsJ6BBVrUL5IKr4ZjnxcF3hApaSyQEUuvpNo5efia4ctWk0hp1HKVmfILNnw5ypmkeE1mWnKWKYoolvy6byeu2HBJvqbYPUQZdliYzE/RKAc3ZRH8JH5njByWzPkKWvouNrxoBcs7UpDZClDKKB8BJ7YR9j0u7GkRDLay8Sdd4Wefj/oWQWP+j4MXRTobEGwtRM1/mGSj7q7sQexAazmwXGpRzLLNX2lA1Rhsh/qtEuyuOHbqumGtpMviNiInSbDQzNfBhUg1frfcAp6PnpGqc2+/MLkNM+co=
+  file: '$TRAVIS_BUILD_DIR/*'
   on:
-    tags: true
+    repo: tinyzimmer/cloudtail

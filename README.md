@@ -21,7 +21,7 @@ $> cloudtail [OPTIONS] logGroup # accepts substring
 For whatever reason, there is a docker image you can use also.
 
 ```bash
-$> alias ctail='docker run --rm tinyzimmer/cloudtail:latest'
+$> alias ctail='docker run --rm -it tinyzimmer/cloudtail:latest  /cloudtail'
 $> ctail --help
 ```
 

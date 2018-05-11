@@ -16,6 +16,12 @@ Head to the [releases](https://github.com/tinyzimmer/cloudtail/releases) section
 $> cloudtail [OPTIONS] logGroup # accepts substring
 ```
 
+## Build
+
+```bash
+$> go get -u github.com/tinyzimmer/cloudtail
+```
+
 ## TODO (stolen from real tail)
 ```bash
 -r                   keep trying to open a group even if it is

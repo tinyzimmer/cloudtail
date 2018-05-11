@@ -9,11 +9,10 @@ script:
 - gox -os="linux darwin windows" -arch="amd64 386" -output="./build/{{.Dir}}_{{.OS}}_{{.Arch}}"
 deploy:
   provider: releases
-  skip_cleanup: true
-  overwrite: true
   file_glob: true
+  skip_cleanup: true
   api_key:
-    secure: JWlR3ft9P3bqmdxrc/kp1CQ5luYAOQ4E3j2oklRXTt2PUFvAAV66QDonU2fZP4vrmoSKhR8q8uhg9rAYiBByDsuJQyLi5DzXb5XQDfkiOAwHKYLECFCVqG8VNCAhtCzi+PNyjMosv0mX/S6w0o4q3gBE+eRjya/9cwVuofgxvBgg5zCMoyii/91kP9dmttjV6i9lfu+CjeUa8JqfARk2AynMMUs/WjACSIaON3DMKCEm2hAncqb6Y+/DJvtKEVxSQ28QxmRMSzqgkEtQ8tWE/q9rtNmEb+rr8Zg2JBkQ88ffXlP39pz2ploBQ42GdSL+Z7obRWPfOHQXXc2kTcBnimjtS216bFGZ3vCVZHFBD4R7kLrnWnVhYOxFRHMs4wwDqrLQE20irsEsJ6BBVrUL5IKr4ZjnxcF3hApaSyQEUuvpNo5efia4ctWk0hp1HKVmfILNnw5ypmkeE1mWnKWKYoolvy6byeu2HBJvqbYPUQZdliYzE/RKAc3ZRH8JH5njByWzPkKWvouNrxoBcs7UpDZClDKKB8BJ7YR9j0u7GkRDLay8Sdd4Wefj/oWQWP+j4MXRTobEGwtRM1/mGSj7q7sQexAazmwXGpRzLLNX2lA1Rhsh/qtEuyuOHbqumGtpMviNiInSbDQzNfBhUg1frfcAp6PnpGqc2+/MLkNM+co=
-  file: './build/*'
+    secure: VFM+lz0g/xV4df92jD6XJp5NeR2DD4zTXAsYChAMNfMZZC4CswQTf6SsURtuF4fJpGl1Hn+XIWQEv1/CVSIyb2fs1iMp2CmEk1EbC79ooXAxctUXs2JXnaeE6OdbgfBHnkbshR9gYI6GZCFCDUfSBS3S7oXPfyWu+LhpH9KPVvGFqCGTxOta6tnxkX1IOvwuhn+cYVS9uRl0i9cx/89rXlPrHUsMD6VDV3ZEYJHSAvBAfKUjKOya0wPsusj4vup1fT6brFDyGPGwRCn3kVsKH/Fa/1HxTK2vozzfEhVyQSzRx20Tr2DUj+nJ4Vk0NMdcZitoYNkUESavPSNpdE1Cqs2wh9JoEZoKcFQJSOf7sr2xemmqqTOYJ6907mFEJUJlgtpp8iawKcnPRDJifgWH1tqORPgxjFXqN/rCyfxwBsOSJtZ57PgtoBytgt+7Ax2BGz+aR0qCgrTnB+77visa3/97IA4ZHU18LRL2sE/ZY5I9VbCGv686tec/Xdz4g0LiKIFlcoWT+q0XnDsW4R4/2wtSZsmDG1lpYA/djPjzl0ijo09vaDs73vwlrAtsehfCTTbXJ2eq2gyndSC6tF9YT0tfHXufzBpc8oWoUefkA+bB+iHsXwrU72w5aD6hET2oyIMZnojNcU3POhYBeOrNLrpTVEZ3S1kD+5Ouv98UWR8=
+  file: "./build/*"
   on:
-    branch: master
+    repo: tinyzimmer/cloudtail

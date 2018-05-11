@@ -6,7 +6,7 @@ before_install:
 install:
   - go get github.com/mitchellh/gox
 script:
-  - ./travisbuild.sh
+  - bash ./travisbuild.sh
 deploy:
   provider: releases
   file_glob: true

@@ -3,7 +3,7 @@ Tail Implementation for CloudWatch Logs
 
 [![Build Status](https://travis-ci.com/tinyzimmer/cloudtail.svg?branch=master)](https://travis-ci.com/tinyzimmer/cloudtail)
 
-Head to the [releases](https://github.com/tinyzimmer/cloudtail/releases) section for pre-compiled binaries
+Head to the [releases](https://github.com/tinyzimmer/cloudtail/releases) section to download pre-compiled binaries for Linux, Windows, and macOS. Only amd64 binaries are provided.
 
 ```bash
  OPTIONS

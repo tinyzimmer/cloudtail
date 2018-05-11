@@ -7,7 +7,7 @@ import (
 
 const (
 	DEFAULT_LOG_LINES     = 10
-	DEFAULT_STREAM_EVENTS = false
+	DEFAULT_FOLLOW_STREAM = false
 )
 
 var (
@@ -17,7 +17,7 @@ var (
 
 func init() {
 	flag.IntVar(&numLines, "n", DEFAULT_LOG_LINES, "Number of lines to dump")
-	flag.BoolVar(&streamEvents, "f", DEFAULT_STREAM_EVENTS, "Stream the log group") // to do
+	flag.BoolVar(&streamEvents, "f", DEFAULT_FOLLOW_STREAM, "Follow the log group") // to do
 	flag.Parse()
 }
 

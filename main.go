@@ -6,18 +6,21 @@ import (
 )
 
 const (
-	DEFAULT_LOG_LINES     = 10
-	DEFAULT_FOLLOW_STREAM = false
+	DEFAULT_LOG_LINES       = 10
+	DEFAULT_FOLLOW_STREAM   = false
+	DEFAULT_FOLLOW_INTERVAL = 3
 )
 
 var (
-	numLines     int
-	streamEvents bool
+	numLines       int
+	followEvents   bool
+	followInterval int
 )
 
 func init() {
 	flag.IntVar(&numLines, "n", DEFAULT_LOG_LINES, "Number of lines to dump")
-	flag.BoolVar(&streamEvents, "f", DEFAULT_FOLLOW_STREAM, "Follow the log group") // to do
+	flag.BoolVar(&followEvents, "f", DEFAULT_FOLLOW_STREAM, "Follow the log group")
+	flag.IntVar(&followInterval, "t", DEFAULT_FOLLOW_INTERVAL, "Interval (in seconds) to poll during a follow")
 	flag.Parse()
 }
 
@@ -28,7 +31,10 @@ func main() {
 	}
 	session := InitSession()
 	group := session.SearchLogGroups(os.Args[len(os.Args)-1])
-	streams := session.GetLogStreams(group)
-	session.DumpLogEvents(group, streams, numLines)
+	if !followEvents {
+		session.DumpLogEvents(&group, numLines)
+	} else {
+		session.FollowLogEvents(&group, followInterval)
+	}
 	os.Exit(0)
 }

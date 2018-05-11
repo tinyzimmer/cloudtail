@@ -13,7 +13,8 @@ import (
 
 type LogSession struct {
 	LogService *cloudwatchlogs.CloudWatchLogs
-	LogGroups  []*cloudwatchlogs.LogGroup
+	LogGroups  []logGroup
+	LogStreams []logStream
 }
 
 func InitSession() (logSession LogSession) {
@@ -25,7 +26,7 @@ func InitSession() (logSession LogSession) {
 	}))
 	logSession.LogService = cloudwatchlogs.New(sess)
 	// initialize log group list
-	logSession.LogGroups = logSession.GetLogGroups()
+	logSession.RefreshLogGroups()
 	return logSession
 }
 

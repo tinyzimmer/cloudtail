@@ -20,7 +20,7 @@ var (
 func init() {
 	flag.IntVar(&numLines, "n", DEFAULT_LOG_LINES, "Number of lines to dump")
 	flag.BoolVar(&followEvents, "f", DEFAULT_FOLLOW_STREAM, "Follow the log group")
-	flag.IntVar(&followInterval, "t", DEFAULT_FOLLOW_INTERVAL, "Interval (in seconds) to poll during a follow")
+	flag.IntVar(&followInterval, "s", DEFAULT_FOLLOW_INTERVAL, "Interval (in seconds) to sleep during a follow")
 	flag.Parse()
 }
 

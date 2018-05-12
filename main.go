@@ -56,8 +56,6 @@ func main() {
 	}
 
 	session, err := InitSession(verboseOutput, hideMetadata)
-	// initialize log group list
-	session.RefreshLogGroups()
 	if err != nil {
 		os.Exit(1)
 	}

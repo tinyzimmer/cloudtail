@@ -60,7 +60,8 @@ func (s LogSession) GetLogGroups() (logGroups []logGroup) {
 }
 
 func (s LogSession) SearchLogGroups(searchGroup string) (lgroup logGroup) {
-	// Look for log groups that match user input
+	// initialize log group list
+	s.RefreshLogGroups()
 	results := make([]logGroup, 0)
 	for _, group := range s.LogGroups {
 		if strings.Contains(*group.LogGroupName, searchGroup) {

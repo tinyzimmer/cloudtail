@@ -1,7 +1,7 @@
 # cloudtail
 GNU tail-like Implementation for AWS CloudWatch Logs
 
-[![Build Status](https://travis-ci.com/tinyzimmer/cloudtail.svg?branch=master)](https://travis-ci.com/tinyzimmer/cloudtail) [![Coverage Status](https://coveralls.io/repos/github/tinyzimmer/cloudtail/badge.svg?branch=v3.2.5)](https://coveralls.io/github/tinyzimmer/cloudtail?branch=v3.2.5)
+[![Build Status](https://travis-ci.com/tinyzimmer/cloudtail.svg?branch=master)](https://travis-ci.com/tinyzimmer/cloudtail)
 
 Head to the [releases](https://github.com/tinyzimmer/cloudtail/releases) section to download pre-compiled binaries for **Linux** *(All Distributions)*, **macOS**, and **Windows**.
 

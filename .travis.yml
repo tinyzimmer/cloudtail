@@ -7,11 +7,8 @@ before_install:
   - go get -t ./...
 install:
   - go get github.com/mitchellh/gox
-  - go get golang.org/x/tools/cmd/cover
-  - go get github.com/mattn/goveralls
 script:
   - go test -v -covermode=count -coverprofile=coverage.out
-  - $HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
   - bash ./travisbuild.sh
 deploy:
   - provider: releases

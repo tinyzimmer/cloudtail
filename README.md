@@ -47,6 +47,11 @@ $> go get -u github.com/tinyzimmer/cloudtail
 ```
 
 #### TODO
+
+- I need to write tests...
+- I know just from how it's written anything over n=50 will behave oddly, shouldn't affect -f
+- more inline comments
+
 ```bash
 -r                   keep trying to open a group even if it is
                      non-existant or permissions are denied at first

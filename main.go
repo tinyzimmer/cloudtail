@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	VERSION                 = "0.1.5"
+	VERSION                 = "0.1.6"
 	DEFAULT_LOG_LINES       = 10
 	DEFAULT_FOLLOW_STREAM   = false
 	DEFAULT_FOLLOW_INTERVAL = 3
@@ -55,7 +55,12 @@ func main() {
 		dumpVersion()
 	}
 
-	session := InitSession(verboseOutput, hideMetadata)
+	session, err := InitSession(verboseOutput, hideMetadata)
+	// initialize log group list
+	session.RefreshLogGroups()
+	if err != nil {
+		os.Exit(1)
+	}
 	group := session.SearchLogGroups(os.Args[len(os.Args)-1])
 	if !followEvents {
 		session.DumpLogEvents(&group, numLines)

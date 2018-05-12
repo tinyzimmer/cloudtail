@@ -8,6 +8,7 @@ before_install:
 install:
   - go get github.com/mitchellh/gox
 script:
+  - go test -v -cover ./...
   - bash ./travisbuild.sh
 deploy:
   - provider: releases

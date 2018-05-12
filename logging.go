@@ -78,11 +78,20 @@ func logLogGroup(group logGroup) {
 	fmt.Println(fmt.Sprintf("%s\n%+v", ColorCyan("cloudtail-log-group"), output))
 }
 
-func (s LogSession) LogEvent(event logEvent) {
+func logLogEvent(event logEvent) (output OutputLogEventLiteral) {
+	output = OutputLogEventLiteral{
+		IngestionTime: fmt.Sprintf("%+v\n", *event.IngestionTime),
+		Message:       *event.Message,
+		Timestamp:     fmt.Sprintf("%+v\n", convertTimestamp(*event.Timestamp)),
+	}
+	return
+}
+
+func LogEvent(event logEvent, verbose bool, hideMetadata bool) {
 	var text interface{}
 	var line string
-	if s.Verbose && !s.HideMetadata {
-		text = extractEvent(event)
+	if verbose && !hideMetadata {
+		text = logLogEvent(event)
 		line = fmt.Sprintf("%s\n%+v", ColorPurple("cloudtail-log-event"), text)
 	} else {
 		tm := convertTimestamp(*event.Timestamp)
@@ -92,18 +101,11 @@ func (s LogSession) LogEvent(event logEvent) {
 	fmt.Println(line)
 }
 
-func LogFatal(err error) {
+func LogFatal(err error, code int) {
 	LogError(err.Error())
-	os.Exit(1)
-}
-
-func extractEvent(event logEvent) (output OutputLogEventLiteral) {
-	output = OutputLogEventLiteral{
-		IngestionTime: fmt.Sprintf("%+v\n", *event.IngestionTime),
-		Message:       *event.Message,
-		Timestamp:     fmt.Sprintf("%+v\n", convertTimestamp(*event.Timestamp)),
+	if code > 0 {
+		os.Exit(code)
 	}
-	return
 }
 
 func ColorRed(value string) string {

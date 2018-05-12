@@ -54,7 +54,7 @@ func (s LogSession) GetLogGroups() (logGroups []logGroup) {
 			return true
 		})
 	if err != nil {
-		LogFatal(err)
+		LogFatal(err, 1)
 	}
 	return
 }
@@ -69,10 +69,10 @@ func (s LogSession) SearchLogGroups(searchGroup string) (lgroup logGroup) {
 	}
 	if len(results) > 1 {
 		err := errors.New("Multiple matching log groups. Try narrowing down the search.")
-		LogFatal(err)
+		LogFatal(err, 1)
 	} else if len(results) == 0 {
 		err := errors.New(fmt.Sprintf("No matching log groups found for: %s", searchGroup))
-		LogFatal(err)
+		LogFatal(err, 1)
 	} else {
 		lgroup = results[0]
 		if s.Verbose && !s.HideMetadata {
@@ -92,7 +92,7 @@ func (s LogSession) GetLogStreams(logGroup *logGroup) (logStreams []logStream) {
 		OrderBy:      aws.String("LastEventTime"),
 	})
 	if err != nil {
-		LogFatal(err)
+		LogFatal(err, 1)
 	}
 	for _, x := range resp.LogStreams {
 		stream := logStream{
@@ -128,7 +128,7 @@ func (s LogSession) CollectEvents(group *logGroup, numEvents int, waitPid int) (
 			LogStreamName: stream.LogStreamName,
 		})
 		if err != nil {
-			LogFatal(err)
+			LogFatal(err, 1)
 		}
 		for _, event := range resp.Events {
 			if len(events) < numEvents {
@@ -155,7 +155,7 @@ func (s LogSession) DumpLogEvents(group *logGroup, numEvents int) {
 	sorted := sortEvents(events)
 	// dump the events to stdout
 	for _, event := range sorted {
-		s.LogEvent(event)
+		LogEvent(event, s.Verbose, s.HideMetadata)
 	}
 }
 
@@ -167,7 +167,7 @@ func (s LogSession) FollowLogEvents(group *logGroup, interval int, waitPid int) 
 	newEvents = s.CollectEvents(group, DEFAULT_LOG_LINES, waitPid)
 	sorted := sortEvents(newEvents)
 	for _, event := range sorted {
-		s.LogEvent(event)
+		LogEvent(event, s.Verbose, s.HideMetadata)
 		oldEvents = append(oldEvents, event)
 	}
 	for {
@@ -176,7 +176,7 @@ func (s LogSession) FollowLogEvents(group *logGroup, interval int, waitPid int) 
 		sorted := sortEvents(newEvents)
 		for _, event := range sorted {
 			if eventIsNew(event, oldEvents) {
-				s.LogEvent(event)
+				LogEvent(event, s.Verbose, s.HideMetadata)
 				oldEvents = append(oldEvents, event)
 			}
 		}

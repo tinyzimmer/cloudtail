@@ -17,14 +17,17 @@ type LogSession struct {
 	HideMetadata bool
 }
 
-func InitSession(verbose bool, hideMetadata bool) (logSession LogSession) {
+func InitSession(verbose bool, hideMetadata bool) (logSession LogSession, err error) {
 	// Get credentials and a session
 	logSession.Verbose = verbose
 	logSession.HideMetadata = hideMetadata
 	if verbose {
 		LogInfo("Retrieving and testing AWS Credentials")
 	}
-	creds := getCreds()
+	creds, err := getCreds()
+	if err != nil {
+		return
+	}
 	if verbose {
 		LogInfo("Validated AWS Credentials")
 	}
@@ -34,14 +37,13 @@ func InitSession(verbose bool, hideMetadata bool) (logSession LogSession) {
 	}))
 	logSession.LogService = cloudwatchlogs.New(sess)
 	if verbose {
-		LogInfo("Created CloudWatch Session. Gathering Log Groups.")
+		LogInfo("Created CloudWatch Session")
 	}
-	// initialize log group list
-	logSession.RefreshLogGroups()
-	return logSession
+
+	return
 }
 
-func getCreds() (creds *credentials.Credentials) {
+func getCreds() (creds *credentials.Credentials, err error) {
 	// Check for credentials in following order
 	//    1. Environment Variables
 	//    2. EC2 IAM Role
@@ -55,9 +57,10 @@ func getCreds() (creds *credentials.Credentials) {
 			},
 			&credentials.SharedCredentialsProvider{},
 		})
-	_, err := creds.Get()
+	_, err = creds.Get()
 	if err != nil {
-		LogFatal(err)
+		LogError(err.Error())
+		return
 	}
 	return
 }

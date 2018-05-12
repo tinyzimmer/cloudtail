@@ -48,11 +48,14 @@ $> go get -u github.com/tinyzimmer/cloudtail
 
 #### TODO
 
-- I need to write tests...
 - I know just from how it's written anything over n=50 will behave oddly, shouldn't affect -f
 - pid poll can be threaded off probably to be more efficient. I only put it there anyway because original tail has it.
-- I originally left out the bytes switches because they seemed pointless...then I realized I could actually implement them if I wanted.
+- bytes filters
+- stream locking for follow
+- date and search filters
 - more inline comments
+- custom output formats (json, yaml, etc.)
+- multitail abilities - display multiple log groups side by side
 
 ```bash
 -r                   keep trying to open a group even if it is

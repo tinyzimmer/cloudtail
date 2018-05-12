@@ -21,23 +21,30 @@ var oldLogStreams []logStream
 
 func (s *LogSession) RefreshLogGroups() {
 	s.LogGroups = make([]logGroup, 0)
-	groups := s.GetLogGroups()
-	for _, group := range groups {
-		s.LogGroups = append(s.LogGroups, group)
+	groups, err := s.GetLogGroups()
+	if err != nil {
+		LogFatal(err)
+	} else {
+		for _, group := range groups {
+			s.LogGroups = append(s.LogGroups, group)
+		}
 	}
 }
 
 func (s *LogSession) RefreshLogStreams(group *logGroup) {
 	s.LogStreams = make([]logStream, 0)
-	streams := s.GetLogStreams(group)
+	streams, err := s.GetLogStreams(group)
+	if err != nil {
+		return
+	}
 	for _, stream := range streams {
 		s.LogStreams = append(s.LogStreams, stream)
 	}
 }
 
-func (s LogSession) GetLogGroups() (logGroups []logGroup) {
+func (s LogSession) GetLogGroups() (logGroups []logGroup, err error) {
 	// Retrieve a list of all known log groups
-	err := s.LogService.DescribeLogGroupsPages(&cloudwatchlogs.DescribeLogGroupsInput{},
+	err = s.LogService.DescribeLogGroupsPages(&cloudwatchlogs.DescribeLogGroupsInput{},
 		func(page *cloudwatchlogs.DescribeLogGroupsOutput, lastPage bool) bool {
 			for _, group := range page.LogGroups {
 				tgroup := logGroup{
@@ -53,13 +60,10 @@ func (s LogSession) GetLogGroups() (logGroups []logGroup) {
 			}
 			return true
 		})
-	if err != nil {
-		LogFatal(err, 1)
-	}
 	return
 }
 
-func (s LogSession) SearchLogGroups(searchGroup string) (lgroup logGroup) {
+func (s LogSession) SearchLogGroups(searchGroup string) (lgroup logGroup, err error) {
 	// initialize log group list
 	s.RefreshLogGroups()
 	results := make([]logGroup, 0)
@@ -69,11 +73,11 @@ func (s LogSession) SearchLogGroups(searchGroup string) (lgroup logGroup) {
 		}
 	}
 	if len(results) > 1 {
-		err := errors.New("Multiple matching log groups. Try narrowing down the search.")
-		LogFatal(err, 1)
+		err = errors.New("Multiple matching log groups. Try narrowing down the search.")
+		LogFatal(err)
 	} else if len(results) == 0 {
-		err := errors.New(fmt.Sprintf("No matching log groups found for: %s", searchGroup))
-		LogFatal(err, 1)
+		err = errors.New(fmt.Sprintf("No matching log groups found for: %s", searchGroup))
+		LogFatal(err)
 	} else {
 		lgroup = results[0]
 		if s.Verbose && !s.HideMetadata {
@@ -83,7 +87,7 @@ func (s LogSession) SearchLogGroups(searchGroup string) (lgroup logGroup) {
 	return
 }
 
-func (s LogSession) GetLogStreams(logGroup *logGroup) (logStreams []logStream) {
+func (s LogSession) GetLogStreams(logGroup *logGroup) (logStreams []logStream, err error) {
 	// Retrieve log streams associated with a log group
 	// Sort by descending timestamp and only give us the last 10 streams
 	resp, err := s.LogService.DescribeLogStreams(&cloudwatchlogs.DescribeLogStreamsInput{
@@ -93,7 +97,8 @@ func (s LogSession) GetLogStreams(logGroup *logGroup) (logStreams []logStream) {
 		OrderBy:      aws.String("LastEventTime"),
 	})
 	if err != nil {
-		LogFatal(err, 1)
+		LogFatal(err)
+		return
 	}
 	for _, x := range resp.LogStreams {
 		stream := logStream{
@@ -111,7 +116,7 @@ func (s LogSession) GetLogStreams(logGroup *logGroup) (logStreams []logStream) {
 	return
 }
 
-func (s LogSession) CollectEvents(group *logGroup, numEvents int, waitPid int) (events []logEvent) {
+func (s LogSession) CollectEvents(group *logGroup, numEvents int, waitPid int) (events []logEvent, err error) {
 	for _, stream := range s.LogStreams {
 		checkPid(waitPid)
 		if s.Verbose && !s.HideMetadata {
@@ -123,13 +128,14 @@ func (s LogSession) CollectEvents(group *logGroup, numEvents int, waitPid int) (
 		if len(events) >= numEvents {
 			break
 		}
-		resp, err := s.LogService.GetLogEvents(&cloudwatchlogs.GetLogEventsInput{
+		var resp *cloudwatchlogs.GetLogEventsOutput
+		resp, err = s.LogService.GetLogEvents(&cloudwatchlogs.GetLogEventsInput{
 			Limit:         aws.Int64(int64(numEvents)),
 			LogGroupName:  group.LogGroupName,
 			LogStreamName: stream.LogStreamName,
 		})
 		if err != nil {
-			LogFatal(err, 1)
+			return
 		}
 		for _, event := range resp.Events {
 			if len(events) < numEvents {
@@ -151,7 +157,11 @@ func (s LogSession) DumpLogEvents(group *logGroup, numEvents int) {
 	var events []logEvent
 	// iterate the streams and create a slice of events
 	s.RefreshLogStreams(group)
-	events = s.CollectEvents(group, numEvents, -1)
+	events, err := s.CollectEvents(group, numEvents, -1)
+	if err != nil {
+		LogFatal(err)
+		return
+	}
 	// sort the events by timestamp
 	sorted := sortEvents(events)
 	// dump the events to stdout
@@ -165,7 +175,11 @@ func (s LogSession) FollowLogEvents(group *logGroup, interval int, waitPid int) 
 	var oldEvents []logEvent
 	var newEvents []logEvent
 	s.RefreshLogStreams(group)
-	newEvents = s.CollectEvents(group, DEFAULT_LOG_LINES, waitPid)
+	newEvents, err := s.CollectEvents(group, DEFAULT_LOG_LINES, waitPid)
+	if err != nil {
+		LogFatal(err)
+		return
+	}
 	sorted := sortEvents(newEvents)
 	for _, event := range sorted {
 		LogEvent(event, s.Verbose, s.HideMetadata)
@@ -173,7 +187,11 @@ func (s LogSession) FollowLogEvents(group *logGroup, interval int, waitPid int) 
 	}
 	for {
 		checkPid(waitPid)
-		newEvents = s.CollectEvents(group, DEFAULT_LOG_LINES, waitPid)
+		newEvents, err = s.CollectEvents(group, DEFAULT_LOG_LINES, waitPid)
+		if err != nil {
+			LogFatal(err)
+			return
+		}
 		sorted := sortEvents(newEvents)
 		for _, event := range sorted {
 			if eventIsNew(event, oldEvents) {

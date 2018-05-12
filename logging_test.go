@@ -60,5 +60,5 @@ func TestLogLogEvent(t *testing.T) {
 }
 
 func TestLogFatal(t *testing.T) {
-	LogFatal(errors.New("test-fatal"), 0)
+	LogFatal(errors.New("test-fatal"))
 }

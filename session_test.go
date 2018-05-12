@@ -6,9 +6,17 @@ import (
 )
 
 func TestVerboseSession(t *testing.T) {
-	_, err := InitSession(true, false)
+	sess, err := InitSession(true, false)
 	if err != nil {
 		t.Error(err)
+	}
+	group, err := sess.SearchLogGroups("lambda")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	_, err = sess.GetLogStreams(&group)
+	if err != nil {
+		t.Errorf(err.Error())
 	}
 }
 

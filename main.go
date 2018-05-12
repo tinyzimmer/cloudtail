@@ -44,7 +44,6 @@ func init() {
 
 func dumpVersion() {
 	fmt.Printf("cloudtail: version %s\n", VERSION)
-	os.Exit(0)
 }
 
 func main() {
@@ -53,13 +52,17 @@ func main() {
 		os.Exit(1)
 	} else if versionDump {
 		dumpVersion()
+		os.Exit(0)
 	}
 
 	session, err := InitSession(verboseOutput, hideMetadata)
 	if err != nil {
 		os.Exit(1)
 	}
-	group := session.SearchLogGroups(os.Args[len(os.Args)-1])
+	group, err := session.SearchLogGroups(os.Args[len(os.Args)-1])
+	if err != nil {
+		os.Exit(1)
+	}
 	if !followEvents {
 		session.DumpLogEvents(&group, numLines)
 	} else {

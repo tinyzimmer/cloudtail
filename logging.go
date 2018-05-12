@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 	"strings"
 	"time"
 )
@@ -101,11 +100,8 @@ func LogEvent(event logEvent, verbose bool, hideMetadata bool) {
 	fmt.Println(line)
 }
 
-func LogFatal(err error, code int) {
+func LogFatal(err error) {
 	LogError(err.Error())
-	if code > 0 {
-		os.Exit(code)
-	}
 }
 
 func ColorRed(value string) string {

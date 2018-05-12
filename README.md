@@ -7,15 +7,15 @@ Head to the [releases](https://github.com/tinyzimmer/cloudtail/releases) section
 
 ```bash
  OPTIONS
-  -f    Follow the log group
-  -n int
-        Number of lines to dump (default 10)
-  -s int
 
-        Interval (in seconds) to poll during a follow (default 3)
-  -version
-        Display version and exit
-        
+ -version
+       Display version and exit
+
+  -f    Follow the log group
+  -n    Number of lines to dump (default 10)
+  -p    with -f, terminate after process ID, PID dies
+  -s    Interval (in seconds) to poll during a follow (default 3)
+
 $> cloudtail [OPTIONS] logGroup # accepts substring
 ```
 
@@ -42,11 +42,10 @@ See the AWS documentation for configuring an SDK client. The order in which `clo
 $> go get -u github.com/tinyzimmer/cloudtail
 ```
 
-#### TODO (stolen from real tail)
+#### TODO (stolen from real GNU tail)
 ```bash
 -r                   keep trying to open a group even if it is
                      non-existant or permissions denied at first
--p                   with -f, terminate after process ID, PID dies
 -q                   never output metadata for log events
 -v                   always output metadata for log events
 ```

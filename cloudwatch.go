@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"sort"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -89,8 +91,9 @@ func (s LogSession) GetLogStreams(logGroup *logGroup) (logStreams []logStream) {
 	return
 }
 
-func (s LogSession) CollectEvents(group *logGroup, numEvents int) (events []logEvent) {
+func (s LogSession) CollectEvents(group *logGroup, numEvents int, waitPid int) (events []logEvent) {
 	for _, stream := range s.LogStreams {
+		checkPid(waitPid)
 		if len(events) >= numEvents {
 			break
 		}
@@ -121,7 +124,7 @@ func (s LogSession) DumpLogEvents(group *logGroup, numEvents int) {
 	var events []logEvent
 	// iterate the streams and create a slice of events
 	s.RefreshLogStreams(group)
-	events = s.CollectEvents(group, numEvents)
+	events = s.CollectEvents(group, numEvents, -1)
 	// sort the events by timestamp
 	sorted := sortEvents(events)
 	// dump the events to stdout
@@ -130,18 +133,20 @@ func (s LogSession) DumpLogEvents(group *logGroup, numEvents int) {
 	}
 }
 
-func (s LogSession) FollowLogEvents(group *logGroup, interval int) {
+func (s LogSession) FollowLogEvents(group *logGroup, interval int, waitPid int) {
+	checkPid(waitPid)
 	var oldEvents []logEvent
 	var newEvents []logEvent
 	s.RefreshLogStreams(group)
-	newEvents = s.CollectEvents(group, DEFAULT_LOG_LINES)
+	newEvents = s.CollectEvents(group, DEFAULT_LOG_LINES, waitPid)
 	sorted := sortEvents(newEvents)
 	for _, event := range sorted {
 		fmt.Println(formatEvent(event))
 		oldEvents = append(oldEvents, event)
 	}
 	for {
-		newEvents = s.CollectEvents(group, DEFAULT_LOG_LINES)
+		checkPid(waitPid)
+		newEvents = s.CollectEvents(group, DEFAULT_LOG_LINES, waitPid)
 		sorted := sortEvents(newEvents)
 		for _, event := range sorted {
 			if eventIsNew(event, oldEvents) {
@@ -175,4 +180,27 @@ func eventIsNew(newEvent logEvent, events []logEvent) bool {
 		}
 	}
 	return true
+}
+
+func pidRunning(pid int) bool {
+	process, err := os.FindProcess(int(pid))
+	if err != nil {
+		log.Printf("Process %v exited\n", pid)
+		return false
+	} else {
+		err := process.Signal(syscall.Signal(0))
+		if err.Error() == "no such process" {
+			log.Printf("Process %v exited\n", pid)
+			return false
+		}
+	}
+	return true
+}
+
+func checkPid(waitPid int) {
+	if waitPid != -1 {
+		if !pidRunning(waitPid) {
+			os.Exit(0)
+		}
+	}
 }

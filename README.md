@@ -35,7 +35,7 @@ $> ctail --help
 See the AWS documentation for configuring an SDK client. The order in which `cloudtail` checks credentials is:
 
  - Environment Credentials
- - IAM Instance Profile
+ - EC2 IAM Instance Profile
  - Shared Credentials File (~/.aws/credentials)
 
 ## Build

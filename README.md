@@ -1,5 +1,5 @@
 # cloudtail
-Tail Implementation for AWS CloudWatch Logs
+GNU tail-like Implementation for AWS CloudWatch Logs
 
 [![Build Status](https://travis-ci.com/tinyzimmer/cloudtail.svg?branch=master)](https://travis-ci.com/tinyzimmer/cloudtail)
 

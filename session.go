@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds"
@@ -12,19 +10,32 @@ import (
 )
 
 type LogSession struct {
-	LogService *cloudwatchlogs.CloudWatchLogs
-	LogGroups  []logGroup
-	LogStreams []logStream
+	LogService   *cloudwatchlogs.CloudWatchLogs
+	LogGroups    []logGroup
+	LogStreams   []logStream
+	Verbose      bool
+	HideMetadata bool
 }
 
-func InitSession() (logSession LogSession) {
+func InitSession(verbose bool, hideMetadata bool) (logSession LogSession) {
 	// Get credentials and a session
+	logSession.Verbose = verbose
+	logSession.HideMetadata = hideMetadata
+	if verbose {
+		LogInfo("Retrieving and testing AWS Credentials")
+	}
 	creds := getCreds()
+	if verbose {
+		LogInfo("Validated AWS Credentials")
+	}
 	sess := session.Must(session.NewSession(&aws.Config{
 		Credentials: creds,
 		Region:      aws.String("us-west-2"),
 	}))
 	logSession.LogService = cloudwatchlogs.New(sess)
+	if verbose {
+		LogInfo("Created CloudWatch Session. Gathering Log Groups.")
+	}
 	// initialize log group list
 	logSession.RefreshLogGroups()
 	return logSession
@@ -46,7 +57,7 @@ func getCreds() (creds *credentials.Credentials) {
 		})
 	_, err := creds.Get()
 	if err != nil {
-		log.Fatal(err)
+		LogFatal(err)
 	}
 	return
 }

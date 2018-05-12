@@ -1,8 +1,8 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"log"
 	"os"
 	"sort"
 	"strings"
@@ -16,6 +16,8 @@ import (
 type logEvent cloudwatchlogs.OutputLogEvent
 type logGroup cloudwatchlogs.LogGroup
 type logStream cloudwatchlogs.LogStream
+
+var oldLogStreams []logStream
 
 func (s *LogSession) RefreshLogGroups() {
 	s.LogGroups = make([]logGroup, 0)
@@ -39,14 +41,20 @@ func (s LogSession) GetLogGroups() (logGroups []logGroup) {
 		func(page *cloudwatchlogs.DescribeLogGroupsOutput, lastPage bool) bool {
 			for _, group := range page.LogGroups {
 				tgroup := logGroup{
-					LogGroupName: group.LogGroupName,
+					Arn:               group.Arn,
+					CreationTime:      group.CreationTime,
+					KmsKeyId:          group.KmsKeyId,
+					LogGroupName:      group.LogGroupName,
+					MetricFilterCount: group.MetricFilterCount,
+					RetentionInDays:   group.RetentionInDays,
+					StoredBytes:       group.StoredBytes,
 				}
 				logGroups = append(logGroups, tgroup)
 			}
 			return true
 		})
 	if err != nil {
-		log.Fatal(err)
+		LogFatal(err)
 	}
 	return
 }
@@ -60,12 +68,16 @@ func (s LogSession) SearchLogGroups(searchGroup string) (lgroup logGroup) {
 		}
 	}
 	if len(results) > 1 {
-		log.Println("Multiple matching log groups")
-		log.Fatal(results)
+		err := errors.New("Multiple matching log groups. Try narrowing down the search.")
+		LogFatal(err)
 	} else if len(results) == 0 {
-		log.Fatalf("No matching log groups found for: %s", searchGroup)
+		err := errors.New(fmt.Sprintf("No matching log groups found for: %s", searchGroup))
+		LogFatal(err)
 	} else {
 		lgroup = results[0]
+		if s.Verbose && !s.HideMetadata {
+			logLogGroup(lgroup)
+		}
 	}
 	return
 }
@@ -80,11 +92,18 @@ func (s LogSession) GetLogStreams(logGroup *logGroup) (logStreams []logStream) {
 		OrderBy:      aws.String("LastEventTime"),
 	})
 	if err != nil {
-		log.Fatal(err)
+		LogFatal(err)
 	}
 	for _, x := range resp.LogStreams {
 		stream := logStream{
-			LogStreamName: x.LogStreamName,
+			Arn:                 x.Arn,
+			CreationTime:        x.CreationTime,
+			FirstEventTimestamp: x.FirstEventTimestamp,
+			LastEventTimestamp:  x.LastEventTimestamp,
+			LastIngestionTime:   x.LastIngestionTime,
+			LogStreamName:       x.LogStreamName,
+			StoredBytes:         x.StoredBytes,
+			UploadSequenceToken: x.UploadSequenceToken,
 		}
 		logStreams = append(logStreams, stream)
 	}
@@ -94,6 +113,12 @@ func (s LogSession) GetLogStreams(logGroup *logGroup) (logStreams []logStream) {
 func (s LogSession) CollectEvents(group *logGroup, numEvents int, waitPid int) (events []logEvent) {
 	for _, stream := range s.LogStreams {
 		checkPid(waitPid)
+		if s.Verbose && !s.HideMetadata {
+			if streamIsNew(stream) {
+				logLogStream(stream)
+			}
+			oldLogStreams = append(oldLogStreams, stream)
+		}
 		if len(events) >= numEvents {
 			break
 		}
@@ -103,13 +128,14 @@ func (s LogSession) CollectEvents(group *logGroup, numEvents int, waitPid int) (
 			LogStreamName: stream.LogStreamName,
 		})
 		if err != nil {
-			log.Fatal(err)
+			LogFatal(err)
 		}
 		for _, event := range resp.Events {
 			if len(events) < numEvents {
 				tevent := logEvent{
-					Message:   event.Message,
-					Timestamp: event.Timestamp,
+					Message:       event.Message,
+					Timestamp:     event.Timestamp,
+					IngestionTime: event.IngestionTime,
 				}
 				events = append(events, tevent)
 			} else {
@@ -129,7 +155,7 @@ func (s LogSession) DumpLogEvents(group *logGroup, numEvents int) {
 	sorted := sortEvents(events)
 	// dump the events to stdout
 	for _, event := range sorted {
-		fmt.Println(formatEvent(event))
+		s.LogEvent(event)
 	}
 }
 
@@ -141,7 +167,7 @@ func (s LogSession) FollowLogEvents(group *logGroup, interval int, waitPid int) 
 	newEvents = s.CollectEvents(group, DEFAULT_LOG_LINES, waitPid)
 	sorted := sortEvents(newEvents)
 	for _, event := range sorted {
-		fmt.Println(formatEvent(event))
+		s.LogEvent(event)
 		oldEvents = append(oldEvents, event)
 	}
 	for {
@@ -150,19 +176,13 @@ func (s LogSession) FollowLogEvents(group *logGroup, interval int, waitPid int) 
 		sorted := sortEvents(newEvents)
 		for _, event := range sorted {
 			if eventIsNew(event, oldEvents) {
-				fmt.Println(formatEvent(event))
+				s.LogEvent(event)
 				oldEvents = append(oldEvents, event)
 			}
 		}
 		time.Sleep(time.Duration(interval) * time.Second)
 		go s.RefreshLogStreams(group)
 	}
-}
-
-func formatEvent(event logEvent) (output string) {
-	tm := time.Unix((*event.Timestamp / 1000), 0) // convert to UTC string with offset
-	output = fmt.Sprintf("%s: %s", tm, strings.TrimSpace(*event.Message))
-	return
 }
 
 func sortEvents(events []logEvent) (sorted []logEvent) {
@@ -182,15 +202,24 @@ func eventIsNew(newEvent logEvent, events []logEvent) bool {
 	return true
 }
 
+func streamIsNew(newStream logStream) bool {
+	for _, stream := range oldLogStreams {
+		if *newStream.LogStreamName == *stream.LogStreamName && *newStream.LastEventTimestamp == *stream.LastEventTimestamp {
+			return false
+		}
+	}
+	return true
+}
+
 func pidRunning(pid int) bool {
 	process, err := os.FindProcess(int(pid))
 	if err != nil {
-		log.Printf("Process %v exited\n", pid)
+		LogWarn(fmt.Sprintf("Process %v exited\n", pid))
 		return false
 	} else {
 		err := process.Signal(syscall.Signal(0))
 		if err.Error() == "no such process" {
-			log.Printf("Process %v exited\n", pid)
+			LogWarn(fmt.Sprintf("Process %v exited\n", pid))
 			return false
 		}
 	}

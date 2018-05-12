@@ -5,7 +5,7 @@ GNU tail-like Implementation for AWS CloudWatch Logs
 
 Head to the [releases](https://github.com/tinyzimmer/cloudtail/releases) section to download pre-compiled binaries for **Linux** *(All Distributions)*, **macOS**, and **Windows**.
 
-Only `amd64` binaries are provided.
+Only `amd64` binaries are provided, easy to add others if requested.
 
 ```bash
  OPTIONS
@@ -50,6 +50,8 @@ $> go get -u github.com/tinyzimmer/cloudtail
 
 - I need to write tests...
 - I know just from how it's written anything over n=50 will behave oddly, shouldn't affect -f
+- pid poll can be threaded off probably to be more efficient. I only put it there anyway because original tail has it.
+- I originally left out the bytes switches because they seemed pointless...then I realized I could actually implement them if I wanted.
 - more inline comments
 
 ```bash

@@ -10,10 +10,14 @@ install:
 script:
   - bash ./travisbuild.sh
 deploy:
-  provider: releases
-  file_glob: true
-  skip_cleanup: true
-  api_key: "${GITHUB_TOKEN}"
-  file: "./build/*"
-  on:
-    tags: true
+  - provider: releases
+    file_glob: true
+    skip_cleanup: true
+    api_key: "${GITHUB_TOKEN}"
+    file: "./build/*"
+    on:
+      tags: true
+  - provider: script
+    script: docker push tinyzimmer/cloudtail
+    on:
+      tags: true

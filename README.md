@@ -13,6 +13,9 @@ Head to the [releases](https://github.com/tinyzimmer/cloudtail/releases) section
   -s int
 
         Interval (in seconds) to poll during a follow (default 3)
+  -version
+        Display version and exit
+        
 $> cloudtail [OPTIONS] logGroup # accepts substring
 ```
 
@@ -46,5 +49,4 @@ $> go get -u github.com/tinyzimmer/cloudtail
 -p                   with -f, terminate after process ID, PID dies
 -q                   never output metadata for log events
 -v                   always output metadata for log events
---version            output version information and exit
 ```

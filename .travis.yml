@@ -8,7 +8,7 @@ before_install:
 install:
   - go get github.com/mitchellh/gox
 script:
-  - go test -v -covermode=count -coverprofile=coverage.out
+  - go test -v -covermode=atomic -race -coverprofile=coverage.txt
   - bash ./travisbuild.sh
 deploy:
   - provider: releases
@@ -22,3 +22,6 @@ deploy:
     script: docker push tinyzimmer/cloudtail
     on:
       tags: true
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

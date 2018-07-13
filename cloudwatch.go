@@ -96,6 +96,7 @@ func (s LogSession) SearchLogGroups(searchGroup string) (lgroup logGroup, err er
 				}
 			}
 		} else {
+			LogInfo("To wait for a log group, run cloudtail with the -f flag.")
 			LogFatal(err)
 		}
 	} else {

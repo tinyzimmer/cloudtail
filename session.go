@@ -51,11 +51,11 @@ func getCreds() (creds *credentials.Credentials, err error) {
 	sess := session.Must(session.NewSession())
 	creds = credentials.NewChainCredentials(
 		[]credentials.Provider{
+			&credentials.SharedCredentialsProvider{},
 			&credentials.EnvProvider{},
 			&ec2rolecreds.EC2RoleProvider{
 				Client: ec2metadata.New(sess),
 			},
-			&credentials.SharedCredentialsProvider{},
 		})
 	_, err = creds.Get()
 	if err != nil {

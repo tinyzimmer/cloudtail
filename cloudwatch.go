@@ -63,21 +63,41 @@ func (s LogSession) GetLogGroups() (logGroups []logGroup, err error) {
 	return
 }
 
-func (s LogSession) SearchLogGroups(searchGroup string) (lgroup logGroup, err error) {
-	// initialize log group list
-	s.RefreshLogGroups()
-	results := make([]logGroup, 0)
+func (s LogSession) CheckLogGroups(searchGroup string) (results []logGroup) {
 	for _, group := range s.LogGroups {
 		if strings.Contains(*group.LogGroupName, searchGroup) {
 			results = append(results, group)
 		}
 	}
+	return
+}
+
+func (s LogSession) SearchLogGroups(searchGroup string) (lgroup logGroup, err error) {
+	// initialize log group list
+	s.RefreshLogGroups()
+	results := s.CheckLogGroups(searchGroup)
 	if len(results) > 1 {
 		err = errors.New("Multiple matching log groups. Try narrowing down the search.")
 		LogFatal(err)
 	} else if len(results) == 0 {
 		err = errors.New(fmt.Sprintf("No matching log groups found for: %s", searchGroup))
-		LogFatal(err)
+		if followEvents {
+			LogInfo(err.Error())
+			LogInfo("Follow active: Waiting for log group...")
+			for {
+				time.Sleep(time.Second * time.Duration(followInterval))
+				s.RefreshLogGroups()
+				results = s.CheckLogGroups(searchGroup)
+				if len(results) == 1 {
+					LogInfo("Log group has become available")
+					lgroup = results[0]
+					err = nil
+					return
+				}
+			}
+		} else {
+			LogFatal(err)
+		}
 	} else {
 		lgroup = results[0]
 		if s.Verbose && !s.HideMetadata {

@@ -14,6 +14,7 @@ const (
 	DEFAULT_WAIT_PID        = -1
 	DEFAULT_VERBOSE_OUTPUT  = false
 	DEFAULT_HIDE_METADATA   = false
+	DEFAULT_LIST_GROUPS     = false
 )
 
 var (
@@ -21,6 +22,7 @@ var (
 	followEvents   bool
 	verboseOutput  bool
 	hideMetadata   bool
+	listGroups     bool
 	numLines       int
 	followInterval int
 	waitPid        int
@@ -34,6 +36,7 @@ func init() {
 	flag.IntVar(&waitPid, "p", DEFAULT_WAIT_PID, "with -f, terminate after process ID, PID dies")
 	flag.BoolVar(&verboseOutput, "v", DEFAULT_VERBOSE_OUTPUT, "always output metadata for log events")
 	flag.BoolVar(&hideMetadata, "q", DEFAULT_HIDE_METADATA, "never output metadata for log events")
+	flag.BoolVar(&listGroups, "l", DEFAULT_LIST_GROUPS, "list available log groups and exit")
 	flag.Parse()
 	if verboseOutput && !hideMetadata {
 		hideMetadata = false
@@ -59,6 +62,12 @@ func main() {
 	if err != nil {
 		os.Exit(1)
 	}
+
+	if listGroups {
+		session.DumpLogGroups()
+		os.Exit(0)
+	}
+
 	group, err := session.SearchLogGroups(os.Args[len(os.Args)-1])
 	if err != nil {
 		os.Exit(1)

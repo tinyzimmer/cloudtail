@@ -19,6 +19,14 @@ type logStream cloudwatchlogs.LogStream
 
 var oldLogStreams []logStream
 
+func (s *LogSession) DumpLogGroups() {
+	s.RefreshLogGroups()
+	for _, group := range s.LogGroups {
+		line := fmt.Sprintf("%s%s\t\t%s%s", ColorPurple("LogGroupName: "), *group.LogGroupName, ColorGreen("Created: "), convertTimestamp(*group.CreationTime))
+		fmt.Println(line)
+	}
+}
+
 func (s *LogSession) RefreshLogGroups() {
 	s.LogGroups = make([]logGroup, 0)
 	groups, err := s.GetLogGroups()

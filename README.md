@@ -9,16 +9,20 @@ Only `amd64` binaries are provided, easy to add others if requested.
 
 ```bash
  OPTIONS
+  
+  -version
+        Display version and exit
 
- -version
-       display version and exit
-
-  -f    follow the log group
-  -n    number of lines to dump (default 10)
-  -p    with -f, terminate after process ID, PID dies
-  -s    interval (in seconds) to poll during a follow (default 3)
+  -f    Follow the log group (Waits for a non-existant log group to become available)
+  -l    list available log groups and exit
+  -n int
+        Number of lines to dump (default 10)
+  -p int
+        with -f, terminate after process ID, PID dies (default -1)
   -q    never output metadata for log events
-  -v    always output metadata for log events (with -q, displays connect info)
+  -s int
+        Interval (in seconds) to sleep during a follow (default 3)
+  -v    always output metadata for log events
 
 $> cloudtail [OPTIONS] logGroup # accepts substring
 ```

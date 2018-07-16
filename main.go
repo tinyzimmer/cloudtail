@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	VERSION                 = "0.2.1"
+	VERSION                 = "0.2.2"
 	DEFAULT_LOG_LINES       = 10
 	DEFAULT_FOLLOW_STREAM   = false
 	DEFAULT_FOLLOW_INTERVAL = 3

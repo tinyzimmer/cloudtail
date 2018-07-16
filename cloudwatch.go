@@ -22,7 +22,7 @@ var oldLogStreams []logStream
 func (s *LogSession) DumpLogGroups() {
 	s.RefreshLogGroups()
 	for _, group := range s.LogGroups {
-		line := fmt.Sprintf("%s%s\t\t%s%s", ColorPurple("LogGroupName: "), *group.LogGroupName, ColorGreen("Created: "), convertTimestamp(*group.CreationTime))
+		line := fmt.Sprintf("%s%s\n\t%s%s", ColorPurple("LogGroupName: "), *group.LogGroupName, ColorGreen("Created: "), convertTimestamp(*group.CreationTime))
 		fmt.Println(line)
 	}
 }
